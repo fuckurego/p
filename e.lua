@@ -316,6 +316,47 @@ local function updateStats()
             local level_gain = potential_level - current_level
             local session_level_gain = current_level - (session_start_level or current_level)
             
+            -- Auto turn-in logic
+            if auto_turn_in_enabled then
+                if current_level >= desired_level then
+                    -- Already at or past desired level, stop
+                    auto_turn_in_enabled = false
+                    AutoTurnInStatus.Text = "COMPLETE!"
+                    AutoTurnInStatus.TextColor3 = Color3.fromRGB(100, 255, 255)
+                    DesiredLevelInput.Text = tostring(desired_level)
+                elseif potential_level >= desired_level then
+                    -- Turning in now would reach the goal
+                    AutoTurnInStatus.Text = "GOAL REACHED!"
+                    AutoTurnInStatus.TextColor3 = Color3.fromRGB(255, 255, 100)
+                    
+                    pcall(function()
+                        ReplicatedStorage.Reset:InvokeServer()
+                    end)
+                    
+                    -- Stop after final turn in
+                    auto_turn_in_enabled = false
+                    task.wait(1)
+                    AutoTurnInStatus.Text = "COMPLETE!"
+                    AutoTurnInStatus.TextColor3 = Color3.fromRGB(100, 255, 255)
+                elseif current_points >= 10000000 then
+                    -- Hit 10M but not at goal yet, turn in
+                    AutoTurnInStatus.Text = "TURNING IN..."
+                    AutoTurnInStatus.TextColor3 = Color3.fromRGB(255, 255, 100)
+                    
+                    pcall(function()
+                        ReplicatedStorage.Reset:InvokeServer()
+                    end)
+                    
+                    task.wait(1)
+                    AutoTurnInStatus.Text = "ACTIVE"
+                    AutoTurnInStatus.TextColor3 = Color3.fromRGB(100, 255, 100)
+                else
+                    -- Farming towards 10M
+                    AutoTurnInStatus.Text = string.format("ACTIVE (%s/10M)", formatNumber(current_points))
+                    AutoTurnInStatus.TextColor3 = Color3.fromRGB(100, 255, 100)
+                end
+            end
+            
             -- Update GUI
             CandiesLabel.Text = "Candies Collected: " .. formatNumber(stats.candies_collected)
             CurrentPointsLabel.Text = "Current Points: " .. formatNumber(current_points)
