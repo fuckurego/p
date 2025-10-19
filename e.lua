@@ -78,7 +78,7 @@ local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(1, 0, 0, 30)
 Title.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 Title.BorderSizePixel = 0
-Title.Text = "🍬 Candy Farm Stats v4"
+Title.Text = "🍬 Candy Farm Stats V8"
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 Title.TextSize = 16
 Title.Font = Enum.Font.GothamBold
@@ -286,6 +286,11 @@ local session_start_level = nil
 
 -- Function to update stats
 local function updateStats()
+    -- Don't process auto-turn-in if farming is disabled
+    if not farming_enabled then
+        return
+    end
+    
     local player_data = ReplicatedStorage.PlayerData:FindFirstChild(LocalPlayer.Name)
     if player_data and player_data:FindFirstChild("Generic") then
         local points_value = player_data.Generic:FindFirstChild("Points")
@@ -320,17 +325,19 @@ local function updateStats()
             -- Auto turn-in logic
             if auto_turn_in_enabled then
                 if current_level >= desired_level then
-                    -- Already at or past desired level, stop everything
+                    -- Already at or past desired level, STOP EVERYTHING
                     if farming_enabled then
                         auto_turn_in_enabled = false
                         farming_enabled = false
+                        heartbeat_connection:Disconnect()
                         AutoTurnInStatus.Text = "COMPLETE!"
                         AutoTurnInStatus.TextColor3 = Color3.fromRGB(100, 255, 255)
                         DesiredLevelInput.Text = tostring(desired_level)
-                        print("Goal reached! Stopped farming at level:", current_level)
+                        print("STOPPED COMPLETELY AT LEVEL:", current_level)
                     end
+                    return
                 elseif potential_level >= desired_level then
-                    -- Turning in now would reach the goal - DO IT IMMEDIATELY!
+                    -- Turning in now would reach the goal
                     AutoTurnInStatus.Text = "GOAL REACHED!"
                     AutoTurnInStatus.TextColor3 = Color3.fromRGB(255, 255, 100)
                     
@@ -339,14 +346,16 @@ local function updateStats()
                     end)
                     
                     if success then
-                        -- Stop after final turn in
+                        -- STOP EVERYTHING after turn in
                         auto_turn_in_enabled = false
                         farming_enabled = false
-                        print("Turned in points! Stopping farming.")
+                        heartbeat_connection:Disconnect()
+                        print("TURNED IN AND STOPPED COMPLETELY")
                         task.wait(1)
                         AutoTurnInStatus.Text = "COMPLETE!"
                         AutoTurnInStatus.TextColor3 = Color3.fromRGB(100, 255, 255)
                     end
+                    return
                 elseif current_points >= 10000000 then
                     -- Hit 10M but not at goal yet, turn in
                     AutoTurnInStatus.Text = "TURNING IN..."
