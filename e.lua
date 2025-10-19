@@ -404,7 +404,14 @@ local function find_best_candy()
 end
 
 local last_candy = nil
+local farming_enabled = true
+
 RunService.Heartbeat:Connect(function()
+    -- Stop farming if goal is reached
+    if not farming_enabled then
+        return
+    end
+    
     local char = LocalPlayer.Character
     if not char then return end
     
