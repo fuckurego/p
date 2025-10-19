@@ -78,7 +78,7 @@ local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(1, 0, 0, 30)
 Title.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 Title.BorderSizePixel = 0
-Title.Text = "🍬 Candy Farm Stats V8"
+Title.Text = "🍬 Candy Farm Stats v14"
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 Title.TextSize = 16
 Title.Font = Enum.Font.GothamBold
@@ -325,36 +325,25 @@ local function updateStats()
             -- Auto turn-in logic
             if auto_turn_in_enabled then
                 if current_level >= desired_level then
-                    -- Already at or past desired level, STOP EVERYTHING
-                    if farming_enabled then
-                        auto_turn_in_enabled = false
-                        farming_enabled = false
-                        heartbeat_connection:Disconnect()
-                        AutoTurnInStatus.Text = "COMPLETE!"
-                        AutoTurnInStatus.TextColor3 = Color3.fromRGB(100, 255, 255)
-                        DesiredLevelInput.Text = tostring(desired_level)
-                        print("STOPPED COMPLETELY AT LEVEL:", current_level)
-                    end
+                    -- Already at or past desired level, KICK PLAYER
+                    AutoTurnInStatus.Text = "COMPLETE!"
+                    AutoTurnInStatus.TextColor3 = Color3.fromRGB(100, 255, 255)
+                    print("GOAL REACHED! Disconnecting...")
+                    task.wait(2)
+                    LocalPlayer:Kick("✅ Goal Reached! You are now level " .. tostring(math.floor(current_level)) .. "!")
                     return
                 elseif potential_level >= desired_level then
                     -- Turning in now would reach the goal
                     AutoTurnInStatus.Text = "GOAL REACHED!"
                     AutoTurnInStatus.TextColor3 = Color3.fromRGB(255, 255, 100)
                     
-                    local success = pcall(function()
+                    pcall(function()
                         ReplicatedStorage.Reset:InvokeServer()
                     end)
                     
-                    if success then
-                        -- STOP EVERYTHING after turn in
-                        auto_turn_in_enabled = false
-                        farming_enabled = false
-                        heartbeat_connection:Disconnect()
-                        print("TURNED IN AND STOPPED COMPLETELY")
-                        task.wait(1)
-                        AutoTurnInStatus.Text = "COMPLETE!"
-                        AutoTurnInStatus.TextColor3 = Color3.fromRGB(100, 255, 255)
-                    end
+                    print("Turned in final points! Disconnecting...")
+                    task.wait(3)
+                    LocalPlayer:Kick("✅ Goal Reached! Final turn-in complete. Level: " .. tostring(desired_level))
                     return
                 elseif current_points >= 10000000 then
                     -- Hit 10M but not at goal yet, turn in
