@@ -78,7 +78,7 @@ local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(1, 0, 0, 30)
 Title.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 Title.BorderSizePixel = 0
-Title.Text = "🍬 Candy Farm Stats"
+Title.Text = "🍬 Candy Farm Stats v2"
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 Title.TextSize = 16
 Title.Font = Enum.Font.GothamBold
@@ -213,6 +213,7 @@ DesiredLevelInput.FocusLost:Connect(function()
     if input_level and input_level > 0 then
         desired_level = input_level
         auto_turn_in_enabled = true
+        farming_enabled = true
         AutoTurnInStatus.Text = "ACTIVE"
         AutoTurnInStatus.TextColor3 = Color3.fromRGB(100, 255, 100)
     else
@@ -319,25 +320,33 @@ local function updateStats()
             -- Auto turn-in logic
             if auto_turn_in_enabled then
                 if current_level >= desired_level then
-                    -- Already at or past desired level, stop
-                    auto_turn_in_enabled = false
-                    AutoTurnInStatus.Text = "COMPLETE!"
-                    AutoTurnInStatus.TextColor3 = Color3.fromRGB(100, 255, 255)
-                    DesiredLevelInput.Text = tostring(desired_level)
+                    -- Already at or past desired level, stop everything
+                    if farming_enabled then
+                        auto_turn_in_enabled = false
+                        farming_enabled = false
+                        AutoTurnInStatus.Text = "COMPLETE!"
+                        AutoTurnInStatus.TextColor3 = Color3.fromRGB(100, 255, 255)
+                        DesiredLevelInput.Text = tostring(desired_level)
+                        print("Goal reached! Stopped farming at level:", current_level)
+                    end
                 elseif potential_level >= desired_level then
                     -- Turning in now would reach the goal - DO IT IMMEDIATELY!
                     AutoTurnInStatus.Text = "GOAL REACHED!"
                     AutoTurnInStatus.TextColor3 = Color3.fromRGB(255, 255, 100)
                     
-                    pcall(function()
+                    local success = pcall(function()
                         ReplicatedStorage.Reset:InvokeServer()
                     end)
                     
-                    -- Stop after final turn in
-                    auto_turn_in_enabled = false
-                    task.wait(1)
-                    AutoTurnInStatus.Text = "COMPLETE!"
-                    AutoTurnInStatus.TextColor3 = Color3.fromRGB(100, 255, 255)
+                    if success then
+                        -- Stop after final turn in
+                        auto_turn_in_enabled = false
+                        farming_enabled = false
+                        print("Turned in points! Stopping farming.")
+                        task.wait(1)
+                        AutoTurnInStatus.Text = "COMPLETE!"
+                        AutoTurnInStatus.TextColor3 = Color3.fromRGB(100, 255, 255)
+                    end
                 elseif current_points >= 10000000 then
                     -- Hit 10M but not at goal yet, turn in
                     AutoTurnInStatus.Text = "TURNING IN..."
