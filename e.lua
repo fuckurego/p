@@ -154,6 +154,75 @@ LevelGainLabel.Font = Enum.Font.Gotham
 LevelGainLabel.TextXAlignment = Enum.TextXAlignment.Left
 LevelGainLabel.Parent = MainFrame
 
+-- Desired Level Input
+local DesiredLevelFrame = Instance.new("Frame")
+DesiredLevelFrame.Size = UDim2.new(1, -20, 0, 40)
+DesiredLevelFrame.Position = UDim2.new(0, 10, 0, 170)
+DesiredLevelFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+DesiredLevelFrame.BorderSizePixel = 0
+DesiredLevelFrame.Parent = MainFrame
+
+local DesiredCorner = Instance.new("UICorner")
+DesiredCorner.CornerRadius = UDim.new(0, 6)
+DesiredCorner.Parent = DesiredLevelFrame
+
+local DesiredLevelLabel = Instance.new("TextLabel")
+DesiredLevelLabel.Size = UDim2.new(0, 100, 1, 0)
+DesiredLevelLabel.Position = UDim2.new(0, 5, 0, 0)
+DesiredLevelLabel.BackgroundTransparency = 1
+DesiredLevelLabel.Text = "Desired Level:"
+DesiredLevelLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+DesiredLevelLabel.TextSize = 12
+DesiredLevelLabel.Font = Enum.Font.GothamBold
+DesiredLevelLabel.TextXAlignment = Enum.TextXAlignment.Left
+DesiredLevelLabel.Parent = DesiredLevelFrame
+
+local DesiredLevelInput = Instance.new("TextBox")
+DesiredLevelInput.Size = UDim2.new(0, 60, 0, 25)
+DesiredLevelInput.Position = UDim2.new(0, 110, 0, 7)
+DesiredLevelInput.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+DesiredLevelInput.BorderSizePixel = 0
+DesiredLevelInput.Text = "0"
+DesiredLevelInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+DesiredLevelInput.TextSize = 13
+DesiredLevelInput.Font = Enum.Font.Gotham
+DesiredLevelInput.PlaceholderText = "Level"
+DesiredLevelInput.Parent = DesiredLevelFrame
+
+local InputCorner = Instance.new("UICorner")
+InputCorner.CornerRadius = UDim.new(0, 4)
+InputCorner.Parent = DesiredLevelInput
+
+local AutoTurnInStatus = Instance.new("TextLabel")
+AutoTurnInStatus.Size = UDim2.new(0, 85, 1, 0)
+AutoTurnInStatus.Position = UDim2.new(0, 175, 0, 0)
+AutoTurnInStatus.BackgroundTransparency = 1
+AutoTurnInStatus.Text = "OFF"
+AutoTurnInStatus.TextColor3 = Color3.fromRGB(255, 100, 100)
+AutoTurnInStatus.TextSize = 12
+AutoTurnInStatus.Font = Enum.Font.GothamBold
+AutoTurnInStatus.Parent = DesiredLevelFrame
+
+-- Auto turn-in variables
+local desired_level = 0
+local auto_turn_in_enabled = false
+
+-- Update desired level when input changes
+DesiredLevelInput.FocusLost:Connect(function()
+    local input_level = tonumber(DesiredLevelInput.Text)
+    if input_level and input_level > 0 then
+        desired_level = input_level
+        auto_turn_in_enabled = true
+        AutoTurnInStatus.Text = "ACTIVE"
+        AutoTurnInStatus.TextColor3 = Color3.fromRGB(100, 255, 100)
+    else
+        desired_level = 0
+        auto_turn_in_enabled = false
+        AutoTurnInStatus.Text = "OFF"
+        AutoTurnInStatus.TextColor3 = Color3.fromRGB(255, 100, 100)
+    end
+end)
+
 -- Make GUI draggable
 local dragging = false
 local dragInput, dragStart, startPos
