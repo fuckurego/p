@@ -78,7 +78,7 @@ local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(1, 0, 0, 30)
 Title.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 Title.BorderSizePixel = 0
-Title.Text = "🍬 Candy Farm Stats v2"
+Title.Text = "🍬 Candy Farm Stats v4"
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 Title.TextSize = 16
 Title.Font = Enum.Font.GothamBold
@@ -414,8 +414,12 @@ end
 
 local last_candy = nil
 local farming_enabled = true
+local heartbeat_connection
 
-RunService.Heartbeat:Connect(function()
+heartbeat_connection = RunService.Heartbeat:Connect(function()
+    -- Update stats even when not farming
+    updateStats()
+    
     -- Stop farming if goal is reached
     if not farming_enabled then
         return
@@ -444,8 +448,6 @@ RunService.Heartbeat:Connect(function()
     hrp.CFrame = candy.CFrame * CFrame.Angles(angle, 0, 0) + offset
     hrp.Velocity = Vector3.zero
     hrp.AssemblyLinearVelocity = Vector3.zero
-    
-    updateStats()
 end)
 
 LocalPlayer.Idled:Connect(function()
