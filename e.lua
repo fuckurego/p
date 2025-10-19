@@ -325,7 +325,7 @@ local function updateStats()
                     AutoTurnInStatus.TextColor3 = Color3.fromRGB(100, 255, 255)
                     DesiredLevelInput.Text = tostring(desired_level)
                 elseif potential_level >= desired_level then
-                    -- Turning in now would reach the goal
+                    -- Turning in now would reach the goal - DO IT IMMEDIATELY!
                     AutoTurnInStatus.Text = "GOAL REACHED!"
                     AutoTurnInStatus.TextColor3 = Color3.fromRGB(255, 255, 100)
                     
